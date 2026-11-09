@@ -117,7 +117,10 @@ class XuiClient:
 
         # 1. Многондовый путь: один clients/add со всеми UUID — одна подписка на все ноды.
         inbound_uuids = [uuid_by_id[i] for i in self._config.inbound_ids if uuid_by_id.get(i)]
-        if len(inbound_uuids) == len(self._config.inbound_ids):
+        if len(inbound_uuids) != len(self._config.inbound_ids):
+            # 3x-ui 3.11+: у инбаундов больше нет uuid, clients/add ждёт числовые id.
+            inbound_uuids = list(self._config.inbound_ids)
+        if inbound_uuids:
             ok, msg = await self._clients_add(client, inbound_uuids)
             if ok:
                 logger.info(
@@ -181,7 +184,7 @@ class XuiClient:
                     return uuid
         return None
 
-    async def _clients_add(self, client: dict, inbound_uuids: list[str]) -> tuple[bool, str]:
+    async def _clients_add(self, client: dict, inbound_uuids: list[str] | list[int]) -> tuple[bool, str]:
         path = f"{self._config.base_path}/panel/api/clients/add"
         response = await self._post(path, {"client": client, "inboundIds": inbound_uuids}, mode="json")
         return self._ok(response)
