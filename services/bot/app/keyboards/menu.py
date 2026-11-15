@@ -14,6 +14,7 @@ def main_menu_keyboard() -> ReplyKeyboardMarkup:
             [KeyboardButton(text="👤 Личный кабинет"), KeyboardButton(text="👥 Пригласить друга")],
             [KeyboardButton(text="ℹ️ Информация"), KeyboardButton(text="📡 Серверы")],
             [KeyboardButton(text="🧑‍💻 Поддержка")],
+            [KeyboardButton(text="ПОЛИТИКА")],
         ],
         resize_keyboard=True,
     )

@@ -4,7 +4,12 @@ from datetime import datetime, timezone
 from aiogram import F, Router
 from aiogram.filters import Command, CommandStart
 from aiogram.fsm.context import FSMContext
-from aiogram.types import CallbackQuery, Message
+from aiogram.types import (
+    CallbackQuery,
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    Message,
+)
 
 from app import order_storage as orders
 from app.config import get_trial_days, sales_enabled
@@ -64,6 +69,30 @@ async def info_handler(message: Message):
         "Серверы доступны по единой ссылке подписки.\n"
         "Подключение: Happ, v2rayTun или Hiddify.\n\nПомощь: @nyxsupportvpn",
         reply_markup=main_menu_keyboard(),
+    )
+
+
+@router.message(Command("policy"))
+@router.message(F.text == "ПОЛИТИКА")
+async def policy_handler(message: Message):
+    await message.answer(
+        "📄 Документы NYX VPN",
+        reply_markup=InlineKeyboardMarkup(
+            inline_keyboard=[
+                [
+                    InlineKeyboardButton(
+                        text="Политика конфиденциальности",
+                        url="https://telegra.ph/Politika-konfidencialnosti-11-15-76",
+                    )
+                ],
+                [
+                    InlineKeyboardButton(
+                        text="Пользовательское соглашение",
+                        url="https://telegra.ph/Polzovatelskoe-soglashenie-11-15-39",
+                    )
+                ],
+            ]
+        ),
     )
 
 
