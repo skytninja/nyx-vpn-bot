@@ -7,7 +7,11 @@ from aiogram import Bot
 
 from app.config import get_redis_url, get_remind_hours_before
 from app.keyboards.menu import renew_keyboard
-from app.storage import clear_subscription, fetch_subscription_end_dates
+from app.storage import fetch_subscription_end_dates
+from app.services.remnawave import RemnawaveClient, parse_date, is_unlimited
+from app.services.subscriptions import sync_user
+import logging
+from app.order_storage import user_lock
 
 REDIS_TTL_EXTRA = timedelta(days=7)
 
@@ -38,7 +42,18 @@ async def notify_subscriptions(bot: Bot) -> None:
 
     for row in fetch_subscription_end_dates():
         tg_id = row["tg_id"]
-        end_at = row["end_at"]
+        client = RemnawaveClient()
+        try:
+            with user_lock(tg_id):
+                user = await sync_user(tg_id, client)
+            if not user or is_unlimited(user) or user['status'] in ('DISABLED', 'LIMITED'):
+                continue
+            end_at = parse_date(user['expireAt'])
+        except Exception:
+            logging.warning('Cannot refresh subscription for %s; notification skipped', tg_id)
+            continue
+        finally:
+            await client.close()
         if not end_at:
             continue
         if end_at.tzinfo is None:
@@ -51,12 +66,11 @@ async def notify_subscriptions(bot: Bot) -> None:
             try:
                 await bot.send_message(
                     tg_id,
-                    "❌ Пробный период закончился",
+                    "Срок подписки закончился",
                 )
             except Exception:
                 pass
             _set_notified(key, end_at)
-            clear_subscription(tg_id)
             continue
 
         remaining = end_at - now
@@ -68,7 +82,7 @@ async def notify_subscriptions(bot: Bot) -> None:
             try:
                 await bot.send_message(
                     tg_id,
-                    f"⏰ Ваш пробник заканчивается через {hours_left} ч. Хотите продлить?",
+                    f"⏰ Ваша подписка заканчивается через {hours_left} ч. Хотите продлить?",
                     reply_markup=renew_keyboard(),
                 )
             except Exception:

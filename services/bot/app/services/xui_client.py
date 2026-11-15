@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import logging
 import secrets
 from dataclasses import dataclass
@@ -27,6 +28,8 @@ class XuiConfig:
 
 class XuiClient:
     def __init__(self, config: XuiConfig):
+        if os.getenv("VPN_BACKEND", "remnawave") != "xui":
+            raise RuntimeError("Legacy XUI integration is disabled; use Remnawave")
         self._config = config
         self._csrf_token: str | None = None
         self._client = httpx.AsyncClient(

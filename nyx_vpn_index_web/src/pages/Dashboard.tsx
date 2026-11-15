@@ -61,7 +61,7 @@ export function Dashboard() {
   if (!data) return null;
 
   const link = data.subscription?.subscription_link ?? null;
-  const isDeleted = data.reason === 'deleted_from_panel';
+  const isDeleted = ['deleted_from_panel', 'disabled', 'limited', 'unmapped'].includes(data.reason ?? '');
   const statusText = isDeleted
     ? '⛔ Доступ отключён'
     : data.is_active
@@ -107,7 +107,7 @@ export function Dashboard() {
           {isDeleted && (
             <div className="bg-red-50 border border-red-300 p-2">
               <p className="font-mono text-[11px] text-red-800 leading-relaxed">
-                Профиль удалён из системы. Обратитесь в поддержку, чтобы восстановить доступ.
+                Требуется проверка подписки. Напишите @nyxsupportvpn перед оплатой.
               </p>
             </div>
           )}
@@ -116,7 +116,7 @@ export function Dashboard() {
             <div className="bg-white border border-[#7E7E7E] p-2">
               <p className="font-mono text-[10px] text-[#7E7E7E]">Срок окончания</p>
               <p className="font-mono text-sm font-bold text-black">
-                {formatEndDate(endDate)}
+                {data.subscription?.unlimited ? 'Бессрочно' : formatEndDate(endDate)}
                 {typeof daysLeft === 'number' && <span className="font-normal text-[#7E7E7E]"> · {daysLeft} дн. осталось</span>}
               </p>
             </div>
@@ -175,14 +175,7 @@ export function Dashboard() {
         </div>
       </XpWindow>
 
-      <XpWindow title="warning.txt" icon="⚠️">
-        <div className="bg-[#FFF8DC] border border-[#E6C200] p-2">
-          <p className="font-mono text-[11px] text-black leading-relaxed">
-            ⚠️ Не заходите на Госуслуги, ФНС, сайты банков и другие государственные/финансовые сервисы с включённым
-            VPN — это может привести к блокировке аккаунта. Отключите VPN перед такими визитами.
-          </p>
-        </div>
-      </XpWindow>
+
 
       <XpWindow title="быстрый старт.txt" icon="📄">
         <div className="bg-white border border-[#7E7E7E] p-2">

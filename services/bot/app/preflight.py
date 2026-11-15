@@ -7,7 +7,7 @@ import psycopg2
 import redis
 
 from app.config import get_database_url, get_redis_url
-from app.services.xui_client import XuiClient
+from app.services.remnawave import RemnawaveClient
 
 logger = logging.getLogger(__name__)
 
@@ -34,11 +34,11 @@ def _check_redis() -> None:
         ) from exc
 
 
-async def _check_xui() -> None:
-    client = XuiClient.from_env()
+async def _check_remna() -> None:
+    client = RemnawaveClient()
     try:
-        await client.login()
-        logger.info("XUI panel reachable and login successful")
+        await client.request('GET', 'users?size=1')
+        logger.info('Remnawave API reachable')
     finally:
         await client.close()
 
@@ -46,4 +46,4 @@ async def _check_xui() -> None:
 async def run_preflight() -> None:
     await asyncio.to_thread(_check_db)
     await asyncio.to_thread(_check_redis)
-    await _check_xui()
+    await _check_remna()

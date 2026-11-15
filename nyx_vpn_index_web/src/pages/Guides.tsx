@@ -76,7 +76,7 @@ export function Guides() {
             <li>4. Подключиться</li>
           </ol>
           <div className="mt-2 pt-2 border-t border-[#C3C3C3]">
-            <p className="font-mono text-[10px] text-[#7E7E7E]">Протокол: VLESS + Reality · Обход блокировок</p>
+            <p className="font-mono text-[10px] text-[#7E7E7E]">NYX VPN · подключение по подписке</p>
           </div>
         </div>
       </XpWindow>
@@ -133,15 +133,7 @@ export function Guides() {
         </div>
       </XpWindow>
 
-      <XpWindow title="white_list.txt" icon="🌐">
-        <div className="bg-white border border-[#7E7E7E] p-2">
-          <p className="font-mono text-xs font-bold text-black">Белый список</p>
-          <p className="font-mono text-[11px] text-black mt-1 leading-relaxed">
-            Для доменов gosuslugi.ru, nalog.ru, сайтов банков добавьте их в обход (Bypass / Исключения) в настройках
-            клиента — эти сайты будут идти напрямую.
-          </p>
-        </div>
-      </XpWindow>
+
     </div>
   );
 }

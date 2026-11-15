@@ -36,6 +36,7 @@ def _apply_migrations() -> None:
     if not alembic_ini.exists():
         return
     alembic_cfg = Config(str(alembic_ini))
+    alembic_cfg.set_main_option("script_location", str(alembic_ini.parent / "alembic"))
     command.upgrade(alembic_cfg, "head")
 
 
@@ -128,8 +129,7 @@ def get_subscription(tg_id: int) -> tuple[datetime | None, datetime | None]:
             end_at = row["end_at"]
             end_at = _normalize_dt(end_at)
             if end_at and end_at < datetime.now(timezone.utc):
-                clear_subscription(tg_id)
-                return None, None
+                return start_at, end_at
             _cache_set_subscription(
                 tg_id,
                 start_at,
@@ -162,7 +162,6 @@ def get_vpn_data(tg_id: int) -> tuple[str | None, str | None]:
             end_at = row["end_at"]
             end_at = _normalize_dt(end_at)
             if end_at and end_at < datetime.now(timezone.utc):
-                clear_subscription(tg_id)
                 return None, None
             return row["subscription_link"], row["instructions"]
 
@@ -192,9 +191,6 @@ def get_subscription_meta(tg_id: int) -> dict | None:
             if not row:
                 return None
             end_at = _normalize_dt(row["end_at"])
-            if end_at and end_at < datetime.now(timezone.utc):
-                clear_subscription(tg_id)
-                return None
             _cache_set_subscription(
                 tg_id,
                 row["start_at"],
@@ -471,16 +467,16 @@ def record_first_payment_and_reward(tg_id: int, reward: int = 75) -> dict | None
                 (tg_id,),
             )
             user = cur.fetchone()
-            if not user or not user.get("referrer_tg_id") or bool(user.get("first_payment_done")):
+            if not user or bool(user.get("first_payment_done")):
                 return None
 
-            referrer_tg_id = int(user["referrer_tg_id"])
+            referrer_tg_id = int(user["referrer_tg_id"]) if user.get("referrer_tg_id") else None
 
             cur.execute(
                 "UPDATE users SET first_payment_done = TRUE WHERE tg_id = %s AND first_payment_done = FALSE",
                 (tg_id,),
             )
-            if cur.rowcount == 0:
+            if cur.rowcount == 0 or referrer_tg_id is None:
                 return None
 
             cur.execute(
@@ -599,8 +595,9 @@ def _cache_set_subscription(
     end_at = _normalize_dt(end_at)
     if not end_at:
         return
-    ttl = int((end_at - datetime.now(timezone.utc)).total_seconds())
+    ttl = min(86400, int((end_at - datetime.now(timezone.utc)).total_seconds()))
     if ttl <= 0:
+        _cache_clear_subscription(tg_id)
         return
     payload = json.dumps(
         {

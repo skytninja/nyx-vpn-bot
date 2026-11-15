@@ -41,3 +41,5 @@ logs/
 # Локальные артефакты Claude
 CLAUDE.md
 HANDOFF.md
+REMNA_BOT_IMPLEMENTATION.md
+AGENTS.md

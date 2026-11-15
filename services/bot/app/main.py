@@ -1,14 +1,15 @@
 import asyncio
 import logging
 from aiogram import Bot, Dispatcher
+from aiogram.fsm.storage.redis import RedisStorage
 from aiogram.types import BotCommand
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-from app.config import get_bot_token
+from app.config import get_bot_token, get_redis_url
 from app.notifications import notify_subscriptions
 from app.preflight import run_preflight
 from app.services.server_monitor import check_all_servers
-from app.storage import init_db, purge_expired_subscriptions
+from app.storage import init_db
 
 
 async def main():
@@ -19,7 +20,6 @@ async def main():
     init_db()
     bot = Bot(token=token)
     scheduler = AsyncIOScheduler()
-    scheduler.add_job(purge_expired_subscriptions, "interval", hours=12)
     scheduler.add_job(notify_subscriptions, "interval", hours=1, args=[bot])
     scheduler.add_job(check_all_servers, "interval", hours=5)
     scheduler.start()
@@ -38,7 +38,7 @@ async def main():
         )
     except Exception:
         logging.warning("Failed to set bot commands (will retry later)")
-    dp = Dispatcher()
+    dp = Dispatcher(storage=RedisStorage.from_url(get_redis_url()))
     dp.include_router(start.router)
     dp.include_router(payment.router)
     dp.include_router(referral.router)

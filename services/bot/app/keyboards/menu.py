@@ -22,6 +22,6 @@ def main_menu_keyboard() -> ReplyKeyboardMarkup:
 def renew_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text="Продлить", url="https://t.me/nyxsupportvpn")],
+            [InlineKeyboardButton(text="Продлить", callback_data="renew:select")],
         ]
     )

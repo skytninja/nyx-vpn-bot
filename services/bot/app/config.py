@@ -156,3 +156,11 @@ def get_vpn_servers() -> list[VpnServer]:
         if host:
             return [VpnServer(name="VPN Server", host=host, port=port)]
     return []
+
+
+def sales_enabled() -> bool:
+    from pathlib import Path
+    load_env()
+    return (os.getenv('REMNA_SALES_ENABLED', 'false').lower() == 'true'
+            and not Path(__file__).with_name('.remna-migration-paused').exists()
+            and not Path('/app/.remna-migration-paused').exists())

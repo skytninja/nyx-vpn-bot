@@ -2,6 +2,7 @@ export interface Subscription {
   start_at: string | null;
   end_at: string | null;
   days_left: number | null;
+  unlimited?: boolean;
   subscription_link: string | null;
   instructions: string | null;
 }

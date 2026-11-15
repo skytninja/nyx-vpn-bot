@@ -21,7 +21,7 @@ async def cabinet_handler(message: Message):
     cabinet_url = get_cabinet_url()
 
     exp = datetime.now(timezone.utc) + timedelta(hours=1)
-    token = jwt.encode({"sub": tg_id, "exp": int(exp.timestamp())}, secret, algorithm="HS256")
+    token = jwt.encode({"sub": str(tg_id), "exp": int(exp.timestamp())}, secret, algorithm="HS256")
 
     url = f"{cabinet_url}/cabinet?t={token}"
 

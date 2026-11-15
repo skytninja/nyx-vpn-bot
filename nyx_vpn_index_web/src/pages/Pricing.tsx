@@ -44,7 +44,6 @@ export function Pricing() {
 
   const amount = data.payment_amount;
   const days = data.payment_days;
-  const phone = data.sbp_phone ?? '—';
 
   return (
     <div className="flex flex-col gap-3">
@@ -60,23 +59,18 @@ export function Pricing() {
               <span className="font-mono text-3xl font-bold text-black">{amount}</span>
               <span className="font-mono text-lg text-[#7E7E7E]">₽</span>
             </div>
-            <p className="font-mono text-xs text-[#7E7E7E] mt-0.5">за {days} дн. · безлимит трафика · Германия + Нидерланды</p>
-            <p className="font-mono text-[10px] text-[#7E7E7E] mt-1">До 5 устройств · Поддержка 24/7</p>
+            <p className="font-mono text-xs text-[#7E7E7E] mt-0.5">за {days} дн. · безлимит трафика · Россия + Германия + Нидерланды</p>
+            <p className="font-mono text-[10px] text-[#7E7E7E] mt-1">Помощь: @nyxsupportvpn</p>
           </div>
         </div>
       </XpWindow>
 
       <XpWindow title="инструкция.sbp" icon="💳">
         <div className="bg-white border border-[#7E7E7E] p-3">
-          <p className="font-mono text-xs font-bold text-black mb-2">Оплата через СБП:</p>
-          <ol className="font-mono text-xs text-black space-y-2">
-            <li>
-              1. Переведите <span className="font-bold">{amount} ₽</span> по СБП на номер
-              <span className="font-bold"> {phone}</span>
-            </li>
-            <li>2. Сфотографируйте или сделайте скриншот чека</li>
-            <li>3. Пришлите фото чека в бота — подписка продлится после проверки</li>
-          </ol>
+          <p className="font-mono text-xs text-black">
+            Укажите количество месяцев в боте. Бот рассчитает сумму и покажет реквизиты СБП.
+            После перевода отправьте фото чека в бот. Подписка будет продлена после проверки.
+          </p>
         </div>
         <div className="mt-2">
           <XpButton

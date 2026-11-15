@@ -19,8 +19,7 @@ services:
     command: ["redis-server", "--save", "60", "1", "--loglevel", "warning"]
     volumes:
       - redis_data:/data
-    ports:
-      - "6379:6379"
+    # Порт наружу не публикуем: бот ходит в redis по внутренней сети docker.
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
