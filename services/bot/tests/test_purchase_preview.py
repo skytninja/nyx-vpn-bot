@@ -136,7 +136,7 @@ async def test_invalid_period_does_not_offer_payment(flow, value):
     await feed(flow, text="/buy")
     calls = await feed(flow, text=value)
     message = last_message(calls)
-    assert "от 1 до 120" in message.text
+    assert "от 1 до 6" in message.text
     assert message.reply_markup is None
     assert_no_payment_writes()
 
@@ -182,3 +182,14 @@ async def test_retired_buttons_preserve_existing_payment_history(flow):
     for callback in [f"order:approve:{entry['id']}", f"order:reject:{entry['id']}"]:
         await feed(flow, callback=callback)
         assert orders.order(entry["id"]) == original
+
+
+@pytest.mark.asyncio
+async def test_six_month_limit_and_valid_maximum(flow):
+    await feed(flow, text="/buy")
+    calls = await feed(flow, text="6")
+    offer = last_message(calls)
+    assert "6 мес. (180 дней)" in offer.text and "1140 ₽" in offer.text
+    calls = await feed(flow, text="7")
+    assert "от 1 до 6" in last_message(calls).text
+    assert_no_payment_writes()

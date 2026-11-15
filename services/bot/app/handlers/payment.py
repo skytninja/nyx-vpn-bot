@@ -23,8 +23,8 @@ class PaymentStates(StatesGroup):
 
 
 def purchase_text(months: int) -> str:
-    if not 1 <= months <= 120:
-        raise ValueError("Количество месяцев должно быть от 1 до 120")
+    if not 1 <= months <= 6:
+        raise ValueError("Количество месяцев должно быть от 1 до 6")
     days = months * get_payment_days()
     amount = months * get_payment_amount()
     return (
@@ -54,7 +54,7 @@ async def show_purchase(message: Message, state: FSMContext):
     await state.set_state(PaymentStates.months)
     await message.answer(
         purchase_text(1)
-        + "\n\nДля другого срока введите количество месяцев от 1 до 120. "
+        + "\n\nДля другого срока введите количество месяцев от 1 до 6. "
         "Для отмены — /cancel.",
         reply_markup=purchase_keyboard(),
     )
@@ -75,8 +75,8 @@ async def cancel_months(message: Message, state: FSMContext):
 @router.message(PaymentStates.months, F.text.regexp(r"^\s*[0-9]+\s*$"))
 async def select_months(message: Message, state: FSMContext):
     raw = message.text.strip()
-    if len(raw) > 3 or not 1 <= int(raw) <= 120:
-        await message.answer("Введите количество месяцев от 1 до 120.")
+    if len(raw) > 1 or not 1 <= int(raw) <= 6:
+        await message.answer("Введите количество месяцев от 1 до 6.")
         return
     await state.clear()
     await message.answer(purchase_text(int(raw)), reply_markup=purchase_keyboard())
@@ -87,7 +87,7 @@ async def change_months(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
     await state.set_state(PaymentStates.months)
     await callback.message.answer(
-        "Введите количество месяцев от 1 до 120.\n"
+        "Введите количество месяцев от 1 до 6.\n"
         f"1 месяц — {get_payment_days()} дней, {get_payment_amount()} ₽.\n"
         "Для отмены — /cancel."
     )
@@ -116,7 +116,7 @@ async def pay_unavailable(callback: CallbackQuery):
     ),
 )
 async def invalid_months(message: Message):
-    await message.answer("Введите целое количество месяцев от 1 до 120 или /cancel.")
+    await message.answer("Введите целое количество месяцев от 1 до 6 или /cancel.")
 
 
 @router.message(StateFilter(None, PaymentStates.months), F.photo)
