@@ -326,8 +326,32 @@ async def test_trial_recovers_from_crash_after_db_saved(monkeypatch):
         await service.apply_order(entry["id"], allow_trial=True)
     monkeypatch.setattr(orders, "finish", finish)
     monkeypatch.setattr(start, "RemnawaveClient", lambda: panel)
-    monkeypatch.setattr(start, "sales_enabled", lambda: True)
     message = SimpleNamespace(answer=AsyncMock())
     await start._request_trial(SimpleNamespace(id=100, username="tester"), message)
     assert orders.order(entry["id"])["status"] == "approved"
     assert panel.create_calls == 1
+
+
+@pytest.mark.asyncio
+async def test_trial_available_while_sales_paused_and_not_granted_twice(monkeypatch):
+    from types import SimpleNamespace
+    from unittest.mock import AsyncMock
+    from app.config import sales_enabled
+    from app.handlers import start
+
+    monkeypatch.setenv("REMNA_SALES_ENABLED", "false")
+    assert not sales_enabled()
+    panel = Panel()
+    monkeypatch.setattr(service, "RemnawaveClient", lambda: panel)
+    monkeypatch.setattr(start, "RemnawaveClient", lambda: panel)
+    monkeypatch.setattr(start, "get_trial_days", lambda: 3)
+    user = SimpleNamespace(id=100, username="tester")
+    message = SimpleNamespace(answer=AsyncMock())
+    await start._request_trial(user, message)
+    assert panel.create_calls == 1
+    assert storage.is_trial_used(100)
+    expiry = panel.user["expireAt"]
+    await start._request_trial(user, message)
+    assert panel.create_calls == 1
+    assert panel.user["expireAt"] == expiry
+    assert "подписка активна" in message.answer.call_args.args[0]

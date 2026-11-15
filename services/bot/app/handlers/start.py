@@ -12,7 +12,7 @@ from aiogram.types import (
 )
 
 from app import order_storage as orders
-from app.config import get_trial_days, sales_enabled
+from app.config import get_trial_days
 from app.keyboards.menu import main_menu_keyboard, renew_keyboard
 from app.services.remnawave import RemnawaveClient, is_unlimited, parse_date
 from app.services.subscriptions import apply_order, assert_new_user_allowed, sync_user
@@ -114,11 +114,6 @@ async def trial_callback(callback: CallbackQuery):
 
 
 async def _request_trial(user, message):
-    if not sales_enabled():
-        await message.answer(
-            "Оформление подписки временно недоступно. Поддержка: @nyxsupportvpn"
-        )
-        return
     ensure_user(user.id, user.username)
     client = RemnawaveClient()
     try:
