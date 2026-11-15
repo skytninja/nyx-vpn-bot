@@ -65,11 +65,11 @@ export function Pricing() {
         </div>
       </XpWindow>
 
-      <XpWindow title="инструкция.sbp" icon="💳">
+      <XpWindow title="покупка.exe" icon="💳">
         <div className="bg-white border border-[#7E7E7E] p-3">
           <p className="font-mono text-xs text-black">
-            Укажите количество месяцев в боте. Бот рассчитает сумму и покажет реквизиты СБП.
-            После перевода отправьте фото чека в бот. Подписка будет продлена после проверки.
+            Выберите количество месяцев в боте, проверьте срок и итоговую стоимость тарифа,
+            затем нажмите «Оплатить». Оплата временно недоступна — платёжная система ещё не подключена.
           </p>
         </div>
         <div className="mt-2">
@@ -81,7 +81,7 @@ export function Pricing() {
               window.location.href = botUrl(data.bot_username, 'extend');
             }}
           >
-            Перейти к оплате в боте
+            Купить подписку
           </XpButton>
         </div>
       </XpWindow>

@@ -86,3 +86,13 @@ async def test_panel_outage_does_not_report_stale_active_access(endpoint):
     with pytest.raises(HTTPException) as error:
         await cabinet.cabinet_api("token")
     assert error.value.status_code == 503
+
+
+@pytest.mark.asyncio
+async def test_legacy_bank_details_not_exposed(endpoint, monkeypatch):
+    import json
+
+    monkeypatch.setenv("SBP_PHONE_NUMBER", "+79999999999")
+    data = json.loads((await cabinet.cabinet_api("token")).body)
+    assert "sbp_phone" not in data
+    assert "+79999999999" not in json.dumps(data)

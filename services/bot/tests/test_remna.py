@@ -247,47 +247,27 @@ async def test_invalid_month_count(value, monkeypatch):
 
     from app.handlers import payment
 
-    monkeypatch.setattr(payment, "sales_enabled", lambda: True)
     message = SimpleNamespace(text=value, answer=AsyncMock())
     await payment.select_months(message, AsyncMock())
     assert "от 1 до 120" in message.answer.call_args.args[0]
 
 
 @pytest.mark.asyncio
-async def test_arbitrary_month_count_is_snapshotted(monkeypatch):
+async def test_arbitrary_month_count_shows_offer_without_creating_order(monkeypatch):
     from types import SimpleNamespace
     from unittest.mock import AsyncMock
 
     from app.handlers import payment
 
-    panel = Panel()
-    storage.ensure_user(100, "tester")
-    monkeypatch.setattr(service, "RemnawaveClient", lambda: panel)
-    monkeypatch.setattr(payment, "sales_enabled", lambda: True)
     monkeypatch.setattr(payment, "get_payment_amount", lambda: 150)
     monkeypatch.setattr(payment, "get_payment_days", lambda: 30)
-    monkeypatch.setattr(payment, "get_sbp_phone_number", lambda: "+70000000000")
     message = SimpleNamespace(
         text="7", from_user=SimpleNamespace(id=100), answer=AsyncMock()
     )
     await payment.select_months(message, AsyncMock())
-    entry = orders.open_order(100)
-    assert (entry["months"], entry["days"], entry["amount"]) == (7, 210, 1050)
-
-
-@pytest.mark.asyncio
-async def test_non_admin_cannot_approve(monkeypatch):
-    from types import SimpleNamespace
-    from unittest.mock import AsyncMock
-
-    from app.handlers import payment
-
-    monkeypatch.setattr(payment, "get_admin_id", lambda: 1)
-    callback = SimpleNamespace(from_user=SimpleNamespace(id=2), answer=AsyncMock())
-    await payment.review_payment(
-        callback, payment.OrderCallback(action="approve", order_id=1)
-    )
-    assert callback.answer.call_args.kwargs["show_alert"] is True
+    text = message.answer.call_args.args[0]
+    assert "7 мес. (210 дней)" in text and "1050 ₽" in text
+    assert orders.query("SELECT COUNT(*) AS c FROM vpn_orders")["c"] == 0
 
 
 def test_first_payment_recorded_even_without_referrer():

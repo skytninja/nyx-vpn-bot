@@ -100,7 +100,6 @@ async def cabinet_api(t: str = Query(...)):
         "subscription": None,
         "referral_balance": int(user.get("referral_balance") or 0),
         "bot_username": get_bot_username(),
-        "sbp_phone": os.getenv("SBP_PHONE_NUMBER"),
         "payment_amount": int(os.getenv("PAYMENT_AMOUNT", "150")),
         "payment_days": int(os.getenv("PAYMENT_DAYS", "30")),
     }

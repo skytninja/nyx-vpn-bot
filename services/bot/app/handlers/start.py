@@ -38,9 +38,9 @@ async def start_handler(message: Message, state: FSMContext):
         except ValueError:
             pass
     if payload == "extend":
-        from app.handlers.payment import show_sbp_instructions
+        from app.handlers.payment import show_purchase
 
-        await show_sbp_instructions(message, state)
+        await show_purchase(message, state)
         return
     await message.answer(
         f"🐾 NYX VPN — ваш VPN-сервис в Telegram.\n\n"
@@ -65,7 +65,7 @@ async def help_handler(message: Message):
 async def info_handler(message: Message):
     await message.answer(
         f"ℹ️ NYX VPN\n\nПробный период — {get_trial_days()} дня.\n"
-        "Срок подписки выбирается в месяцах. Оплата — СБП с проверкой чека.\n"
+        "Срок подписки выбирается в месяцах. Стоимость — в разделе «Купить подписку».\n"
         "Серверы доступны по единой ссылке подписки.\n"
         "Подключение: Happ, v2rayTun или Hiddify.\n\nПомощь: @nyxsupportvpn",
         reply_markup=main_menu_keyboard(),

@@ -15,7 +15,6 @@ export interface CabinetData {
   subscription: Subscription | null;
   referral_balance: number;
   bot_username: string;
-  sbp_phone: string | null;
   payment_amount: number;
   payment_days: number;
 }
